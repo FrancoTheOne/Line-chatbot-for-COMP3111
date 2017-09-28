@@ -5,6 +5,9 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.net.URISyntaxException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 
 @Slf4j
@@ -12,7 +15,23 @@ public class SQLDatabaseEngine extends DatabaseEngine {
 	@Override
 	String search(String text) throws Exception {
 		//Write your code here
-		return null;
+		String result;
+		Connection connection=getConnection();		
+		PreparedStatement stmt=connection.prepareStatement("SELECT respond FROM chatbotdb "
+				+ "WHERE LOWER(keyword) LIKE LOWER( CONCAT('%', '" + text + "','%') )");
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next())
+			result=rs.getString(1);
+		else {
+			rs.close();
+			stmt.close();
+			connection.close();
+			throw new Exception("NOT FOUND");
+		}
+		rs.close();
+		stmt.close();
+		connection.close();
+		return result;
 	}
 	
 	
